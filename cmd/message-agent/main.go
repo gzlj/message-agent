@@ -27,6 +27,12 @@ func registryBootstrap(r *gin.Engine) {
 	r.GET("/test", handler.TestGetToken)
 	r.GET("/mail", handler.TestPostMail)
 	r.POST("/",handler.HandleAlertManager)
+	//HandleChannel
+	r.GET("/channel",handler.HandleChannel)
+	//SetUsingChannels
+	r.POST("/channel/active",handler.SetUsingChannels)
+	//GetAllMsgTypes
+	r.GET("/applyMsgType",handler.GetAllMsgTypes)
 }
 
 func init() {
@@ -52,5 +58,5 @@ func main() {
 		engine: gin.Default(),
 	}
 	server.registryApi()
-	server.engine.Run(":8080")
+	server.engine.Run(":18080")
 }

@@ -90,5 +90,56 @@ func HandleAlertManager(c *gin.Context) {
 }
 
 
+func HandleChannel(c *gin.Context) {
+	var (
+		scope string
+	)
+	scope = c.Query("scope")
+	if scope == "active" {
+		c.JSON(200, module.BuildResponse(200,infra.G_ActiveChannels,"haha" ))
+		return
+	}
+	channels, err := infra.GetAllChannelNames()
+	if err != nil {
+		c.JSON(200, module.BuildResponse(500,channels,"" ))
+		return
+	}
+	c.JSON(200, module.BuildResponse(200,channels,"" ))
+}
+
+func SetUsingChannels(c *gin.Context) {
+	var (
+		channels []string
+		err error
+	)
+	if err = c.ShouldBindJSON(&channels); err != nil {
+		c.JSON(400, "requet body is not correct.")
+		return
+	}
+
+	infra.SetUsingChannels(channels)
+
+	c.JSON(200, nil)
+}
+
+func GetAllMsgTypes(c *gin.Context) {
+	var (
+		scope string
+	)
+	scope = c.Query("scope")
+	if scope == "active" {
+		c.JSON(200, module.BuildResponse(200,infra.G_ActiveChannels,"haha" ))
+		return
+	}
+
+	channels, err := infra.GetAllMsgTypeNames()
+	if err != nil {
+		c.JSON(200, module.BuildResponse(500,channels,"" ))
+		return
+	}
+	c.JSON(200, module.BuildResponse(200,channels,"" ))
+}
+
+
 
 

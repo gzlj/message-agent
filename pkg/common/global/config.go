@@ -2,12 +2,16 @@ package global
 
 // 程序配置
 type Config struct {
-	MessageCenter string `json:"messageCenter"`
-	ClientId      string `json:"clientId"`
-	ClientSecret  string `json:"clientSecret"`
-	Channel       string `json:"channel"`
-	Mail          string `json:"mail"`
-	Phone         string `json:"phone"`
+	MessageCenter string   `json:"messageCenter"`
+	ClientId      string   `json:"clientId"`
+	ClientSecret  string   `json:"clientSecret"`
+	Channel       string   `json:"channel"`
+	Mail          string   `json:"mail"`
+	Phone         string   `json:"phone"`
+	AllChannels   []string `json:"allChannels"`
+	UsingChannels []string `json:"usingChannels"`
+	AllMsgTypes   []string `json:"allMsgTypes"`
+	ActiveMsgType []string `json:"activeMsgType"`
 }
 
 var (
@@ -25,6 +29,8 @@ var (
 
 	TOKEN_URI    ="/api/v4/oauth/token"
 	MESSAGE_URI   = "/api/v4/oauth/message"
+	CHANNEL_URI = "/api/v4/oauth/channels"
+	MSSAGE_TYPE_URI = "/api/v4/oauth/applyMsgTypes"
 )
 
 // 加载配置
