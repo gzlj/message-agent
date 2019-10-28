@@ -7,3 +7,5 @@ type MessageType struct {
 	TemplateId        string `json:"templateId"`
 }
 
+
+

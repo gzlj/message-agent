@@ -1,13 +1,14 @@
 package handler
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/gzlj/message-agent/pkg/common/global"
 	"github.com/gzlj/message-agent/pkg/message-agent/infra"
 	"github.com/gzlj/message-agent/pkg/message-agent/module"
 )
 
+/*
 func TestGetToken(c *gin.Context) {
 	var (
 		err  error
@@ -20,40 +21,9 @@ func TestGetToken(c *gin.Context) {
 		return
 	}
 	c.JSON(200, tokenResp)
-
-	/*	url = global.HTTP_PREFIX + global.G_config.MessageCenter + global.TOKEN_URI
-
-		req, _ = http.NewRequest("GET", url, nil)
-		q := req.URL.Query()
-		q.Add(global.QUERY_CLIENT_ID, global.G_config.ClientId)
-		q.Add(global.QUERY_CLIENT_SECRET, global.G_config.ClientSecret)
-		q.Add(global.QUERY_GRANT_TYPE, global.GRANT_TYPE_VALUE)
-		req.URL.RawQuery = q.Encode()
-		fmt.Println(req.URL.String())
-
-		resp, err = http.DefaultClient.Do(req)
-		defer resp.Body.Close()
-		if(err != nil){
-			goto FAIL
-		}
-		if resp.StatusCode != 200 {
-			fmt.Println("resp.StatusCode: ", resp.StatusCode)
-			err = errors.New(resp.Status)
-			goto FAIL
-		}
-		token = module.TokenResponse{}
-		body, _ = ioutil.ReadAll(resp.Body)
-		fmt.Println("body: ", string(body))
-		err =json.Unmarshal(body, &token)
-		if err != nil {
-			goto FAIL
-		}
-		fmt.Println("token struct: ", token)
-		c.JSON(200, token)
-		return;*/
-
-	//c.String(200, QueryJobLogByid(jobId))
 }
+
+
 
 func TestPostMail(c *gin.Context) {
 	if ! infra.TokenIsAlive() {
@@ -73,24 +43,32 @@ func TestPostMail(c *gin.Context) {
 	c.JSON(200, "mail job is stared OK.")
 
 }
+*/
+
 
 func HandleAlertManager(c *gin.Context) {
 	//AlertManagerReqBody
 	var (
 		dto module.AlertManagerReqBody
 		err error
+		bytes []byte
 	)
 	fmt.Println("before c.ShouldBindJSON( ) dto: ", dto)
 	if err = c.ShouldBindJSON(&dto); err != nil {
 		c.JSON(400, "requet body is not correct.")
 		return
 	}
-	fmt.Println("after c.ShouldBindJSON( ) dto: ", dto)
-	c.JSON(200, dto)
+	bytes, err = json.Marshal(dto.Alerts)
+	fmt.Println("prometheus alert: ", string(bytes))
+	infra.SendMessage("prometheus alert", string(bytes))
+	c.JSON(200, nil)
+
+	//fmt.Println("after c.ShouldBindJSON( ) dto: ", dto)
+	//c.JSON(200, dto)
 }
 
-
-func HandleChannel(c *gin.Context) {
+/*
+func GetChannelNames(c *gin.Context) {
 	var (
 		scope string
 	)
@@ -122,24 +100,69 @@ func SetUsingChannels(c *gin.Context) {
 	c.JSON(200, nil)
 }
 
-func GetAllMsgTypes(c *gin.Context) {
+func SetUsingMsgTyep(c *gin.Context) {
+	var (
+		msgType string
+	)
+	msgType = c.Query("msgType")
+
+	if msgType == "" {
+		c.JSON(400, "please specify MsgTyep.")
+		return
+	}
+	infra.SetUsingMsgType(msgType)
+
+	c.JSON(200, nil)
+}
+
+
+
+
+func GetMsgTypes(c *gin.Context) {
 	var (
 		scope string
 	)
 	scope = c.Query("scope")
 	if scope == "active" {
-		c.JSON(200, module.BuildResponse(200,infra.G_ActiveChannels,"haha" ))
+		c.JSON(200, module.BuildResponse(200,[]string{infra.G_ActivMsgType},"haha" ))
 		return
 	}
 
-	channels, err := infra.GetAllMsgTypeNames()
+	names, err := infra.GetAllMsgTypeNames()
 	if err != nil {
-		c.JSON(200, module.BuildResponse(500,channels,"" ))
+		c.JSON(200, module.BuildResponse(500, names,"" ))
 		return
 	}
-	c.JSON(200, module.BuildResponse(200,channels,"" ))
+	c.JSON(200, module.BuildResponse(200, names,"" ))
+}
+
+func GetReceivers(c *gin.Context) {
+
+		c.JSON(200, module.BuildResponse(200,infra.G_Receivers,"" ))
+		return
+
 }
 
 
+//SendMessage
+func SendMessage(c *gin.Context) {
+
+	var (
+		dto module.MessageDto
+		err error
+	)
+
+	if err = c.ShouldBindJSON(&dto); err != nil {
+		c.JSON(400, "requet body is not correct.")
+		return
+	}
+	fmt.Println("dto: ", dto)
+	infra.SendMessage(dto.Title, dto.Content)
+	c.JSON(200, nil)
+	return
+
+}
+
+*/
 
 

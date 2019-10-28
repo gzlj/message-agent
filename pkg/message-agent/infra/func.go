@@ -195,3 +195,82 @@ func Mail(server, mailAddress, title, content string) (err error){
 
 }
 
+func SendMessage(title, content string) (err error){
+	var (
+		resp *http.Response
+		req  *http.Request
+		body []byte
+	)
+	fmt.Println("message center: ", global.G_config.MessageCenter)
+	req = BuildSendMessageReq(global.G_config.MessageCenter, title, content)
+	fmt.Println("req: ", req)
+	resp, err = http.DefaultClient.Do(req)
+	defer resp.Body.Close()
+	if(err != nil){
+		fmt.Println("error when post to message center: ", err)
+		return
+	}
+
+	body, _ = ioutil.ReadAll(resp.Body)
+	fmt.Println("mail resp.Body: ", string(body))
+
+	if resp.StatusCode != 200 {
+		fmt.Println("resp.StatusCode: ", resp.StatusCode)
+		err = errors.New(resp.Status)
+	}
+	return
+
+}
+
+func BuildSendMessageReq(server, title, content string) (req  *http.Request){
+	server = global.HTTP_PREFIX + server + global.MESSAGE_URI
+	bodyStr := getSendMessageApiBodyStr(title, content)
+	req, _ = http.NewRequest("POST", server, strings.NewReader(bodyStr))
+	req.Header.Set("Content-Type", "application/json;charset=UTF-8")
+	q := req.URL.Query()
+	q.Add(global.QUERY_TOKEN, G_ActiveToken.AccessToken)
+	req.URL.RawQuery = q.Encode()
+	return
+}
+
+func getSendMessageApiBodyStr(title, content string) (body string) {
+	/*
+	{
+    "title": "golang告警测试test",
+    "timing": true,
+    "channels": ["DX", "YX"],
+    "msgType": "T",
+    "applyMsgType": "GJ",
+    "content": "测试数据，测试请求",
+    "crowdType": "C",
+    "receiver": [{
+        "id": "handsome007",
+        "name": "handsome",
+        "closable": true
+    }]
+}
+	 */
+	var (
+		b module.SendMessageApiBody
+		bytes []byte
+		err error
+	)
+
+	b = module.SendMessageApiBody{
+		Title: title,
+		Timing: true,
+		Channels: G_ActiveChannels,
+		MsgType: "T",
+		ApplyMsgType: G_ActivMsgType,
+		Content: content,
+		CrowdType: "C",
+		Receiver: G_Receivers,
+	}
+	bytes, err = json.Marshal(b)
+	fmt.Println("send message api body: ", string(bytes))
+	if err != nil {
+		return ""
+	}
+	return string(bytes)
+}
+

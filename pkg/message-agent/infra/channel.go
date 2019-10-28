@@ -97,6 +97,8 @@ func SetUsingChannels(channels []string) {
 }
 
 
+
+
 func ConstructChannelReq(server string) (req  *http.Request){
 	server = global.HTTP_PREFIX + server + global.CHANNEL_URI
 	req, _ = http.NewRequest("GET", server, nil)

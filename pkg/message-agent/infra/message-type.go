@@ -11,12 +11,12 @@ import (
 )
 
 var (
-	G_ActivMsgTypes string
+	G_ActivMsgType string
 )
 
-func SetGlobalActivMsgTypes(channels string) (err error) {
+func SetGlobalActivMsgTypes(msgTypes string) (err error) {
 
-	G_ActivMsgTypes = channels
+	G_ActivMsgType = msgTypes
 	return
 }
 
@@ -83,6 +83,11 @@ func ConstructMsgTypeReq(server string) (req  *http.Request){
 	q.Add(global.QUERY_TOKEN, G_ActiveToken.AccessToken)
 	req.URL.RawQuery = q.Encode()
 	return
+}
+
+func SetUsingMsgType(msgType string) {
+
+	G_ActivMsgType = msgType
 }
 
 

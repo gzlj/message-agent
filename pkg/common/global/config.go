@@ -12,6 +12,7 @@ type Config struct {
 	UsingChannels []string `json:"usingChannels"`
 	AllMsgTypes   []string `json:"allMsgTypes"`
 	ActiveMsgType []string `json:"activeMsgType"`
+	ServerPort string   `json:"serverPort"`
 }
 
 var (
@@ -34,14 +35,12 @@ var (
 )
 
 // 加载配置
-func InitConfig(messageCenter, clientId, clientSecret, channel, mail, phone string) (err error) {
+func InitConfig(messageCenter, clientId, clientSecret, serverPort string) (err error) {
 	conf := Config{
 		MessageCenter: messageCenter,
 		ClientId:      clientId,
 		ClientSecret:  clientSecret,
-		Channel:       channel,
-		Mail:          mail,
-		Phone:         phone,
+		ServerPort: serverPort,
 	}
 	// 3, 赋值单例
 	G_config = &conf
