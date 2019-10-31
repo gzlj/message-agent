@@ -47,7 +47,7 @@ func init() {
 	global.InitConfig(messageCenter, clientId, clientSecret, port)
 	infra.InitGlobalActiveToken()
 	var receivers []module.MessageReceiver
-	receiversStr := os.Getenv("RECEIVER")
+	receiversStr := os.Getenv("RECEIVERS")
 	fmt.Println("receiversStr: ", receiversStr)
 	json.Unmarshal([]byte(receiversStr), &receivers)
 	fmt.Println("receivers: ", receivers)

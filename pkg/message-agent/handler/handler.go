@@ -58,7 +58,7 @@ func HandleAlertManager(c *gin.Context) {
 		c.JSON(400, "requet body is not correct.")
 		return
 	}
-	bytes, err = json.Marshal(dto.Alerts)
+	bytes, err = json.Marshal(dto)
 	fmt.Println("prometheus alert: ", string(bytes))
 	infra.SendMessage("prometheus alert", string(bytes))
 	c.JSON(200, nil)

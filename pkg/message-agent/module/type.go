@@ -19,6 +19,7 @@ type MailApiBody struct {
 
 type AlertManagerReqBody struct {
 	Alerts []Alert `json:"alerts"`
+	Status string `json:"status"`
 }
 
 type Alert struct {

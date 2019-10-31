@@ -9,5 +9,5 @@ export SERVERPORT=18080
 
 export APPLYMSGTYPE=GJ
 export CHANNELS=DX,YX
-export RECEIVER='[{"id":"handsome007","name":"handsome","closable":true}]'
+export RECEIVERS='[{"id":"handsome007","name":"handsome","closable":true}]'
 
