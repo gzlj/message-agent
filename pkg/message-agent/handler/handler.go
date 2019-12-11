@@ -2,10 +2,10 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gzlj/message-agent/pkg/message-agent/infra"
 	"github.com/gzlj/message-agent/pkg/message-agent/module"
+	"log"
 )
 
 /*
@@ -47,25 +47,52 @@ func TestPostMail(c *gin.Context) {
 
 
 func HandleAlertManager(c *gin.Context) {
-	//AlertManagerReqBody
+
 	var (
 		dto module.AlertManagerReqBody
 		err error
 		bytes []byte
+		tokenIsAlive bool
 	)
-	fmt.Println("before c.ShouldBindJSON( ) dto: ", dto)
+	tokenIsAlive = infra.TokenIsAlive()
+	if tokenIsAlive == false {
+		log.Println("Token is not alived.")
+		c.JSON(500, "Token is not alived.")
+		return
+	}
+
+	//fmt.Println("before c.ShouldBindJSON( ) dto: ", dto)
 	if err = c.ShouldBindJSON(&dto); err != nil {
+		log.Println("http requet body is not correct.")
 		c.JSON(400, "requet body is not correct.")
 		return
 	}
 	bytes, err = json.Marshal(dto)
-	fmt.Println("prometheus alert: ", string(bytes))
+	//fmt.Println("prometheus alert: ", string(bytes))
 	infra.SendMessage("prometheus alert", string(bytes))
 	c.JSON(200, nil)
 
 	//fmt.Println("after c.ShouldBindJSON( ) dto: ", dto)
 	//c.JSON(200, dto)
 }
+
+func CheckTokenIsAlived(c *gin.Context) {
+	var (
+		tokenIsAlive bool
+	)
+	tokenIsAlive = infra.TokenIsAlive()
+	c.JSON(200, gin.H{
+		"data": tokenIsAlive,
+		"code": 200,
+		"message": "Token is alived.",
+	})
+}
+
+func GetToken(c *gin.Context) {
+	c.JSON(200, infra.G_ActiveToken)
+}
+
+
 
 /*
 func GetChannelNames(c *gin.Context) {

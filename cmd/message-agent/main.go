@@ -2,12 +2,12 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gzlj/message-agent/pkg/common/global"
 	"github.com/gzlj/message-agent/pkg/message-agent/handler"
 	"github.com/gzlj/message-agent/pkg/message-agent/infra"
 	"github.com/gzlj/message-agent/pkg/message-agent/module"
+	"log"
 	"os"
 	"runtime"
 	"strings"
@@ -46,11 +46,12 @@ func init() {
 	}
 	global.InitConfig(messageCenter, clientId, clientSecret, port)
 	infra.InitGlobalActiveToken()
+	log.Println("get token: ", infra.G_ActiveToken)
 	var receivers []module.MessageReceiver
 	receiversStr := os.Getenv("RECEIVERS")
-	fmt.Println("receiversStr: ", receiversStr)
+	log.Println("receivers config from ENV: ", receiversStr)
 	json.Unmarshal([]byte(receiversStr), &receivers)
-	fmt.Println("receivers: ", receivers)
+	//log.Println("receivers: ", receivers)
 	infra.SetGlobalReceivers(receivers)
 }
 
@@ -63,6 +64,8 @@ func registryBasicApis(r *gin.Engine) {
 	//r.GET("/test", handler.TestGetToken)
 	//r.GET("/mail", handler.TestPostMail)
 	r.POST("/",handler.HandleAlertManager)
+	r.GET("/token/get", handler.GetToken)
+	r.GET("/token/isalive", handler.CheckTokenIsAlived)
 	//r.GET("/channel",handler.GetChannelNames)
 	//r.POST("/channel/active",handler.SetUsingChannels)
 	//r.POST("/applyMsgType/active",handler.SetUsingMsgTyep)
@@ -79,5 +82,6 @@ func main() {
 		port: global.G_config.ServerPort,
 	}
 	server.registryApi()
+	go infra.TtlLoop()
 	server.Run()
 }

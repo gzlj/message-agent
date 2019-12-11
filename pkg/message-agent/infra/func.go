@@ -6,6 +6,7 @@ import (
 	"github.com/gzlj/message-agent/pkg/common/global"
 	"github.com/gzlj/message-agent/pkg/message-agent/module"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"errors"
 	"strings"
@@ -34,7 +35,7 @@ func GetResp(server string) (token *module.TokenResponse, err error){
 	}
 	token = &module.TokenResponse{}
 	body, _ = ioutil.ReadAll(resp.Body)
-	fmt.Println("body: ", string(body))
+	//fmt.Println("body: ", string(body))
 	err =json.Unmarshal(body, token)
 	return
 }
@@ -46,6 +47,8 @@ func ConstructTokenReq(server string) (req  *http.Request){
 	q.Add(global.QUERY_CLIENT_ID, global.G_config.ClientId)
 	q.Add(global.QUERY_CLIENT_SECRET, global.G_config.ClientSecret)
 	q.Add(global.QUERY_GRANT_TYPE, global.GRANT_TYPE_VALUE)
+	q.Add(global.PARAM_REDIRECT_URI, "")
+	q.Add(global.PARAM_CODE, "")
 	req.URL.RawQuery = q.Encode()
 	return
 }
@@ -199,10 +202,14 @@ func SendMessage(title, content string) (err error){
 	var (
 		resp *http.Response
 		req  *http.Request
-		body []byte
+		//body []byte
 	)
 	fmt.Println("message center: ", global.G_config.MessageCenter)
-	req = BuildSendMessageReq(global.G_config.MessageCenter, title, content)
+	req, err = BuildSendMessageReq(global.G_config.MessageCenter, title, content)
+	if err != nil {
+		log.Println("Build SendMessage Request failed: "+err.Error())
+		return
+	}
 	fmt.Println("req: ", req)
 	resp, err = http.DefaultClient.Do(req)
 	defer resp.Body.Close()
@@ -211,18 +218,21 @@ func SendMessage(title, content string) (err error){
 		return
 	}
 
-	body, _ = ioutil.ReadAll(resp.Body)
-	fmt.Println("mail resp.Body: ", string(body))
+	//body, _ = ioutil.ReadAll(resp.Body)
+	//fmt.Println("mail resp.Body: ", string(body))
 
 	if resp.StatusCode != 200 {
-		fmt.Println("resp.StatusCode: ", resp.StatusCode)
+		log.Println("resp.StatusCode: ", resp.StatusCode)
 		err = errors.New(resp.Status)
 	}
 	return
 
 }
 
-func BuildSendMessageReq(server, title, content string) (req  *http.Request){
+func BuildSendMessageReq(server, title, content string) (req  *http.Request, err error){
+	if G_ActiveToken == nil {
+		return nil, errors.New("Token is not alived.")
+	}
 	server = global.HTTP_PREFIX + server + global.MESSAGE_URI
 	bodyStr := getSendMessageApiBodyStr(title, content)
 	req, _ = http.NewRequest("POST", server, strings.NewReader(bodyStr))

@@ -27,11 +27,15 @@ var (
 	QUERY_GRANT_TYPE    = "grant_type"
 	QUERY_TOKEN = "token"
 	GRANT_TYPE_VALUE    = "client_credentials"
+	PARAM_REDIRECT_URI = "redirect_uri"
+	PARAM_CODE = "code"
 
 	TOKEN_URI    ="/api/v4/oauth/token"
 	MESSAGE_URI   = "/api/v4/oauth/message"
 	CHANNEL_URI = "/api/v4/oauth/channels"
 	MSSAGE_TYPE_URI = "/api/v4/oauth/applyMsgTypes"
+
+
 )
 
 // 加载配置

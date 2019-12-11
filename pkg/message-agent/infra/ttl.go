@@ -3,6 +3,7 @@ package infra
 import (
 	"github.com/gzlj/message-agent/pkg/common/global"
 	"github.com/gzlj/message-agent/pkg/message-agent/module"
+	"log"
 	"time"
 )
 
@@ -30,13 +31,12 @@ func InitGlobalActiveToken() (err error){
 
 func TtlLoop() {
 
-	timer1 := time.NewTimer(5 * time.Second)
+	timer1 := time.NewTimer(10 * time.Second)
 	for {
-
 		select {
 		case <-timer1.C:
 			checkActiveToken()
-			timer1.Reset(5 * time.Second)
+			timer1.Reset(10 * time.Second)
 		}
 	}
 
@@ -46,10 +46,12 @@ func checkActiveToken() {
 	if G_ActiveToken != nil {
 		G_ActiveToken.ExpiresIn = G_ActiveToken.ExpiresIn - 5
 		if G_ActiveToken.ExpiresIn < 600 {
+			log.Print("Token is alived but ttl is less then 600s and system start to fresh token.")
 			InitGlobalActiveToken()
 		}
 		return
 	}
+	log.Print("Token does not exist and system start to fresh token.")
 	InitGlobalActiveToken()
 }
 
